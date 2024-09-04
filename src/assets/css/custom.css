@@ -11,3 +11,22 @@
 .categorymenu {
   cursor: pointer;
 }
+
+:root {
+  --max: 18rem;
+}
+
+.card {
+  width: var(--max);
+}
+
+.card-img-top {
+  width: 100%;
+  max-width: var(--max);
+  height: calc(var(--max));
+  object-fit: cover;
+}
+
+.editp {
+  cursor: pointer;
+}

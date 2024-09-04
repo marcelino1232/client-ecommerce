@@ -3,14 +3,7 @@ import { products } from "../actions/productAction";
 
 export const inicialState = {
   loading: false,
-  min: 0,
-  max: 1000,
-  count: 0,
-  page: 0,
-  pageIndex: 0,
-  countByPage: 0,
   results: [],
-  error: null,
 };
 
 const productSlice = createSlice({
@@ -21,8 +14,9 @@ const productSlice = createSlice({
       state.loading = true;
     });
 
-    builder.addCase(products.fulfilled, (state, { payload }) => {
+    builder.addCase(products.fulfilled, (state, actions) => {
       state.loading = false;
+      state.results = actions.payload;
     });
     builder.addCase(products.rejected, (state, { payload }) => {
       state.loading = false;
@@ -30,6 +24,5 @@ const productSlice = createSlice({
     });
   },
 });
-
 
 export const productReducer = productSlice.reducer;

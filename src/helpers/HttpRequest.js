@@ -1,16 +1,16 @@
 import { Http } from "./Http";
 
 export const getToken = () => {
-    if(localStorage.getItem("token") == null){
-        return null;
-    }else{
-        return JSON.parse(localStorage.getItem("token"));
-    }
-}
+  if (localStorage.getItem("token") == null) {
+    return null;
+  } else {
+    return JSON.parse(localStorage.getItem("token"));
+  }
+};
 
 export const setToken = (token) => {
-    localStorage.setItem("token", JSON.stringify(token));
-}
+  localStorage.setItem("token", JSON.stringify(token));
+};
 
 export const HttpRequest = async (
   url,
@@ -18,7 +18,6 @@ export const HttpRequest = async (
   body = null,
   contentType = "application/json"
 ) => {
-
   const option = {
     method: type,
   };
@@ -39,5 +38,14 @@ export const HttpRequest = async (
     option = { ...option, ["body"]: JSON.stringify(body) };
   }
 
-  return await fetch(url, option);
+  try {
+    const request = await fetch(
+      `${import.meta.env.VITE_Back_Domain}${url}`,
+      option
+    );
+    const response = await request.json();
+    return response;
+  } catch (error) {
+    console.log(error);
+  }
 };
