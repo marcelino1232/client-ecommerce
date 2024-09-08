@@ -1,53 +1,22 @@
 import React, { useEffect, useState } from "react";
 import MultiRangeSlider from "multi-range-slider-react";
-import { useDispatch, useSelector } from "react-redux";
-import { categories } from "../../redux/actions/categoryAction";
-import { paginationProduct } from "../../redux/actions/productAction";
 
-export const ProductSearch = ({ setPagination, pagination }) => {
-  const { loadingCategory, results } = useSelector((state) => state.category);
-
-  const [minValue, setMinValue] = useState(0);
-  const [maxValue, setMaxValue] = useState(10000);
-  const [input, setInput] = useState("");
-  const [categoryId, setCategoryId] = useState(null);
-
-  const dispatch = useDispatch();
-
-  useEffect(() => {
-    dispatch(categories());
-  }, [update]);
-
-  useEffect(() => {
-    dispatch(paginationProduct(pagination));
-  }, []);
+export const ProductSearch = ({ setPagination, pagination, results }) => {
 
   const Search = () => {
-    
     setPagination({
       ...pagination,
-      Search: input,
-      Min: minValue,
-      Max: maxValue,
-      CategoryId: categoryId,
       PageIndex: 1,
+      Update: !pagination.Update,
     });
-
-    dispatch(
-      paginationProduct({
-        Search: input,
-        Min: minValue,
-        Max: maxValue,
-        CategoryId: categoryId,
-        PageIndex: 1,
-        PageSize: pagination.PageSize,
-      })
-    );
   };
 
   const handleInput = (e) => {
-    setMinValue(e.minValue);
-    setMaxValue(e.maxValue);
+    setPagination({
+      ...pagination,
+      Min: e.minValue,
+      Max: e.maxValue,
+    });
   };
 
   const setCategory = (e) => {
@@ -59,15 +28,23 @@ export const ProductSearch = ({ setPagination, pagination }) => {
 
     e.target.classList.add("w3-indigo");
 
-    setCategoryId(parseInt(e.target.dataset.id));
+    setPagination({
+      ...pagination,
+      CategoryId: parseInt(e.target.dataset.id),
+    });
   };
 
   return (
     <div className="col-12 col-md-4 mb-4 ">
       <div className="d-flex gap-1">
         <input
-          value={input == "" ? "" : input}
-          onChange={(e) => setInput(e.target.value)}
+          value={pagination.Search}
+          onChange={(e) =>
+            setPagination({
+              ...pagination,
+              Search: e.target.value,
+            })
+          }
           className="w3-input"
           type="text"
           placeholder="Search..."
@@ -80,15 +57,15 @@ export const ProductSearch = ({ setPagination, pagination }) => {
         <label className="h5 d-flex justify-content-between mb-3">
           <label>Range</label>
           <label>
-            {minValue} - {maxValue}
+            {pagination.Min} - {pagination.Max}
           </label>
         </label>
         <MultiRangeSlider
           min={0}
           max={10000}
           step={5}
-          minValue={minValue}
-          maxValue={maxValue}
+          minValue={pagination.Min}
+          maxValue={pagination.Max}
           ruler={false}
           barInnerColor="blue"
           onInput={(e) => {
@@ -101,8 +78,7 @@ export const ProductSearch = ({ setPagination, pagination }) => {
           <li>
             <h2 className="h5 text-center">Category</h2>
           </li>
-          {loadingCategory == false &&
-            results.length > 0 &&
+          {results.length > 0 &&
             results.map((category, indice) => (
               <li
                 key={indice}

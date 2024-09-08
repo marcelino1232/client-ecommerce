@@ -30,3 +30,59 @@
 .editp {
   cursor: pointer;
 }
+
+.thumbnail {
+  position: relative;
+  height: 240px;
+  overflow: hidden;
+}
+
+.thumbnail .product {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: 50% 15%;
+}
+
+.mySlides {
+  width: 100%;
+  height: 400px;
+  object-fit: full;
+}
+
+.fullsize {
+  width: 90%;
+  margin: 0 5%;
+  height: 700px;
+  object-fit: full;
+  z-index: 0;
+}
+
+@media screen and (max-width: 600px) {
+  .fullsize {
+    width: 80%;
+    margin: 0 10% 0 0;
+  }
+}
+
+.demo {
+  width: 100%;
+  height: 100px;
+  object-fit: full;
+}
+
+.hoverlink :hover {
+  text-decoration: solid;
+}
+
+.imgPage {
+  background-image: url("../imgs/download.jpg");
+  background-size: cover;
+  background-position: center center;
+  background-repeat: no-repeat;
+}
+
+.formback{
+  background-color:#ffffff ;
+  opacity: 0.95;
+}

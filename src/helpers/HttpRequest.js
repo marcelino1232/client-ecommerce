@@ -16,28 +16,22 @@ export const HttpRequest = async (
   url,
   type = Http.GET,
   body = null,
-  contentType = "application/json"
+  contentType = null
 ) => {
-  const option = {
-    method: type,
-  };
-
   const token = getToken();
 
-  if (token != null) {
-    option = {
-      ...option,
-      ["headers"]: {
-        "Content-Type": contentType,
-        Authorization: "" + token,
-      },
-    };
-  }
+  let option = {
+    method: type,
+    headers: {
+      Accept: contentType == null ? "application/json" : contentType,
+      "Content-Type": contentType == null ? "application/json" : contentType,
+      Authorization: token == null ? "" : `${token}`,
+    },
+  };
 
   if (body != null) {
     option = { ...option, ["body"]: JSON.stringify(body) };
   }
-
   try {
     const request = await fetch(
       `${import.meta.env.VITE_Back_Domain}${url}`,

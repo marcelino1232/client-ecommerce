@@ -1,12 +1,31 @@
 import React from "react";
-import { Link, NavLink } from "react-router-dom";
+import { useSelector } from "react-redux";
+import { Link } from "react-router-dom";
 
 export const Header = () => {
+  const { shoppingCart } = useSelector((state) => state.shoppingCart);
+
+  function ActiveClick(e) {
+    var a = document.querySelectorAll(".menu");
+    for (let i = 0; i < a.length; i++) {
+      a[i].classList.remove("active");
+    }
+    e.target.classList.add("active");
+  }
+
+  function ActiveIndex() {
+    var a = document.querySelectorAll(".menu");
+    for (let i = 0; i < a.length; i++) {
+      a[i].classList.remove("active");
+    }
+    a.classList.add("active");
+  }
+
   return (
     <>
       <nav className="navbar navbar-expand-sm navbar-dark w3-indigo">
         <div className="container-fluid">
-          <Link className="navbar-brand" to="/">
+          <Link className="navbar-brand" to="/" onClick={ActiveIndex}>
             Marcelino Shop
           </Link>
           <button
@@ -23,23 +42,32 @@ export const Header = () => {
           <div className="collapse navbar-collapse" id="navbarNavDropdown">
             <ul className="navbar-nav">
               <li className="nav-item">
-                <NavLink
-                  className="nav-link w3-display-container"
-                  aria-current="page"
+                <Link
+                  className="nav-link active menu"
                   to="/"
+                  onClick={(e) => ActiveClick(e)}
                 >
-                  <i className="fa-solid fa-store "></i> Home
-                </NavLink>
-              </li>
-              <li className="nav-item">
-                <NavLink className="nav-link" to="/products">
                   <i className="fa-solid fa-laptop"></i> Product
-                </NavLink>
+                </Link>
               </li>
               <li className="nav-item">
-                <NavLink className="nav-link" to="/contact">
+                <Link
+                  className="nav-link w3-display-container menu"
+                  aria-current="page"
+                  to="/about"
+                  onClick={(e) => ActiveClick(e)}
+                >
+                  <i className="fa-solid fa-store "></i> About
+                </Link>
+              </li>
+              <li className="nav-item">
+                <Link
+                  className="nav-link menu"
+                  onClick={(e) => ActiveClick(e)}
+                  to="/contact"
+                >
                   <i className="fa-solid fa-address-card"></i> Contact
-                </NavLink>
+                </Link>
               </li>
               {/*   <li className="nav-item dropdown">
                 <Link className="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" role="button" data-bs-toggle="dropdown" aria-expanded="false">
@@ -54,25 +82,31 @@ export const Header = () => {
             </ul>
             <ul className="navbar-nav ms-auto">
               <li className="nav-item">
-                <NavLink
-                  className="nav-link"
+                <Link
+                  className="nav-link menu"
                   aria-current="page"
                   to="/shoppingCart"
+                  onClick={(e) => ActiveClick(e)}
                 >
                   <i className="fa-solid fa-cart-shopping"></i> Cart{" "}
-                  <span className=" w3-badge w3-teal">0</span>
-                </NavLink>
+                  <span className=" w3-badge w3-teal">
+                    {shoppingCart.count}
+                  </span>
+                </Link>
               </li>
               <li className="nav-item">
-                <NavLink className="nav-link" to="/login">
+                <Link
+                  className="nav-link menu"
+                  to="/login"
+                  onClick={(e) => ActiveClick(e)}
+                >
                   <i className="fa-solid fa-user"></i> Sign In
-                </NavLink>
+                </Link>
               </li>
             </ul>
           </div>
         </div>
       </nav>
-
     </>
   );
 };

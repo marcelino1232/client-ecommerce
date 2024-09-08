@@ -23,9 +23,14 @@ export const paginationProduct = createAsyncThunk(
   }
 );
 
+export const productById = createAsyncThunk(
+  "productById",
+  async (ProductId, ThunkApi) =>
+    await HttpRequest(`/Product/getProductById?ProductId=${ProductId}`)
+);
 
-
-export const ProductById = createAsyncThunk(
-  "ProductById",
-  async (ProductId, ThunkApi) => await HttpRequest(`/Product/${ProductId}`)
+export const getProductByCategoryId = createAsyncThunk(
+  "ProductByCategoryId",
+  async (CategoryId, ThunkApi) =>
+    await `/Product/getProductByCategoryId?CategoryId=${CategoryId}`
 );

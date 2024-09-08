@@ -1,7 +1,7 @@
 import React from "react";
 import { Link } from "react-router-dom";
 
-export const Login = () => {
+export const ForgetPassword = () => {
   return (
     <>
       <div
@@ -12,22 +12,16 @@ export const Login = () => {
         <div className="col-12 col-sm-8 col-md-6">
           <form className="w3-card-4 w3-container mx-2 mx-sm-0 w3-round-xlarge formback">
             <header className="w3-center mt-4 pb-3 w3-border-bottom">
-              <h2 className=" w3-cursive h1 w3-text-indigo">Marcelino Shop</h2>
+              <h2 className=" w3-cursive h1 w3-text-indigo">
+                Recovery Password
+              </h2>
             </header>
             <div className="">
-              <label className=" w3-cursive h5 mt-4">Email Address</label>
+            <label className=" w3-cursive h5 mt-4">Email Address</label>
               <input
                 type="email"
                 className="w3-input w3-border mb-4 w3-round-large"
                 placeholder="Email Address..."
-                required
-              />
-
-              <label className=" w3-cursive h5">Password</label>
-              <input
-                type="password"
-                className="w3-input w3-border mb-4 w3-round-large"
-                placeholder="Password..."
                 required
               />
             </div>
@@ -36,7 +30,7 @@ export const Login = () => {
                 type="submit"
                 className="w3-btn w3-indigo w3-cursive h4 w3-block w3-round-large "
               >
-                Login
+                Send Recovery
               </button>
             </footer>
 
@@ -44,9 +38,9 @@ export const Login = () => {
               <Link
                 className="h5 w3-cursive mb-4 hoverlink"
                 style={{ textDecoration: "none" }}
-                to="/forgotPassword"
+                to="/login"
               >
-                Forgot Password
+                Back to Login
               </Link>
               <Link
                 className="h5 w3-cursive hoverlink"

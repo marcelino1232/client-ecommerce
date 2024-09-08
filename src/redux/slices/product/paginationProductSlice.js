@@ -1,5 +1,5 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { paginationProduct } from "../actions/productAction";
+import { paginationProduct } from "../../actions/productAction";
 
 const initialState = {
   pageIndex: 0,
@@ -36,5 +36,4 @@ const paginationProductSlice = createSlice({
   },
 });
 
-
-export  const  paginationProductReducer = paginationProductSlice.reducer;
+export const paginationProductReducer = paginationProductSlice.reducer;

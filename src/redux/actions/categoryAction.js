@@ -5,3 +5,4 @@ export const categories = createAsyncThunk(
   "categories",
   async (thunkApi) => await HttpRequest("/Category")
 );
+
