@@ -63,8 +63,17 @@ export const ShoppingCart = () => {
                 Cart
               </li>
             </ol>
+          
           </nav>
 
+          <div className="w3-light-grey w3-round-xxlarge mb-3">
+            <div
+              className="w3-container w3-round w3-indigo"
+              style={{ width: "25%" }}
+            >
+              25%
+            </div>
+          </div>
           <div className="w3-card-4 w3-round ">
             <header className=" h4 w3-cursive py-3  container-fluid w3-border-bottom">
               Shopping Bag
@@ -173,9 +182,12 @@ export const ShoppingCart = () => {
                 </div>
                 {shoppingCart.count > 0 && (
                   <div className=" w3-cursive h5 pb-3 pt-1">
-                    <button className=" text-uppercase w3-btn w3-block w3-indigo w3-round-xlarge">
+                    <Link
+                      to="/orderAddress"
+                      className=" text-uppercase w3-btn w3-block w3-indigo w3-round-xlarge"
+                    >
                       Check Out
-                    </button>
+                    </Link>
                   </div>
                 )}
               </div>

@@ -90,7 +90,7 @@ export const Header = () => {
                 >
                   <i className="fa-solid fa-cart-shopping"></i> Cart{" "}
                   <span className=" w3-badge w3-teal">
-                    {shoppingCart.count}
+                    {shoppingCart != null && shoppingCart.count}
                   </span>
                 </Link>
               </li>

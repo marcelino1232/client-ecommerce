@@ -13,6 +13,9 @@ import { getAll } from "./redux/actions/shoppingCartAction";
 import { Register } from "./components/user/Register";
 import { ForgetPassword } from "./components/user/ForgetPassword";
 import { About } from "./components/About";
+import { OrderAddress } from "./components/payment/OrderAddress";
+import { OrderPayment } from "./components/payment/OrderPayment";
+import { OrderCompleted } from "./components/payment/OrderCompleted";
 
 function App() {
   const dispatch = useDispatch();
@@ -31,6 +34,9 @@ function App() {
             <Route path="about" element={<About />} />
             <Route path="contact" element={<Contact />} />
             <Route path="shoppingCart" element={<ShoppingCart />} />
+            <Route path="orderAddress" element={<OrderAddress />} />
+            <Route path="orderPayment" element={<OrderPayment />} />
+            <Route path="orderCompleted" element={<OrderCompleted />} />
             <Route path="*" element={<NoPage />} />
           </Route>
           <Route path="login" element={<Login />} />

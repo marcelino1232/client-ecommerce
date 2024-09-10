@@ -11,6 +11,7 @@ import {
 import { addItem } from "../../redux/actions/shoppingCartAction";
 import { Loading } from "../../layout/Loading";
 export const ProductDetails = () => {
+
   let { ProductId } = useParams();
 
   const {
@@ -85,6 +86,7 @@ export const ProductDetails = () => {
   }
 
   function AddToShopping(e) {
+    
     e.preventDefault();
 
     const ShoppingCartId = getShoppingCartId();
