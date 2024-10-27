@@ -1,48 +1,51 @@
-import React, { useEffect, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { Link, useParams } from "react-router-dom";
-import { productById } from "../../redux/actions/productAction";
+import React, { useContext, useEffect, useState } from "react";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import { ProductCategory } from "./ProductCategory";
 import { ProductReviews } from "./ProductReviews";
-import {
-  getShoppingCartId,
-  setShoppingCartId,
-} from "../../helpers/GetShoppingCartStore";
-import { addItem } from "../../redux/actions/shoppingCartAction";
+import { getShoppingCartId } from "../../helpers/GetShoppingCartStore";
 import { Loading } from "../../layout/Loading";
+import { getToken } from "../../helpers/GetToken";
+import { productById } from "../../services/productService";
+import { addToWish } from "../../services/wishService";
+import { addToShoppingCart } from "../../services/shoppingCartService";
+import { ShoppingCartCount } from "../../layout/Layout";
+
 export const ProductDetails = () => {
+  const navegate = useNavigate();
 
   let { ProductId } = useParams();
 
-  const {
-    loading,
-    images,
-    productId,
-    name,
-    brand,
-    description,
-    salesPrice,
-    categoryId,
-    reviews,
-    results,
-  } = useSelector((state) => state.productById);
+  const [response, setResponse] = useState();
 
-  const { shoppingCart } = useSelector((state) => state.shoppingCart);
+  const [loading, setLoading] = useState(true);
 
-  const dispatch = useDispatch();
+  const auth = getToken();
+
+  const { setCount } = useContext(ShoppingCartCount);
+
+  const [wish, setWish] = useState();
 
   useEffect(() => {
-    dispatch(productById(ProductId));
+    onloading();
   }, [ProductId]);
 
-  useEffect(() => {
-    if (
-      getShoppingCartId() == "00000000-0000-0000-0000-000000000000" &&
-      shoppingCart != null
-    ) {
-      setShoppingCartId(shoppingCart.shoppingCartId);
+  const onloading = async () => {
+    setLoading(true);
+    var request = await productById(ProductId);
+    setResponse(request.response);
+
+    if (request.statusCode == 404) {
+      navegate("/404");
     }
-  }, [shoppingCart]);
+
+    if (auth != null) {
+      setLoading(false);
+
+      setWish(request.response.wish);
+    } else {
+      setLoading(false);
+    }
+  };
 
   const [quantity, setQuantity] = useState(1);
 
@@ -85,193 +88,251 @@ export const ProductDetails = () => {
     dots[slideIndex - 1].className += " w3-opacity-off";
   }
 
-  function AddToShopping(e) {
-    
+  async function AddToShopping(e) {
     e.preventDefault();
 
     const ShoppingCartId = getShoppingCartId();
 
     let request = {
       productId: parseInt(ProductId),
-      name: name,
-      brand: brand,
-      description: description,
-      salesPrice: salesPrice,
+      name: response.name,
+      brand: response.brand,
+      description: response.description,
+      salesPrice: response.salesPrice,
       quantity: quantity,
-      categoryId: categoryId,
+      categoryId: response.categoryId,
       shoppingCartId: ShoppingCartId,
     };
 
-    dispatch(addItem(request));
+    var result = await addToShoppingCart(request);
 
     setQuantity(1);
+
+    if (result.response != null) {
+      setCount(result.response.count);
+      Swal.fire({
+        icon: "success",
+        title: "Product added to cart successfully",
+        showConfirmButton: false,
+        timer: 1500,
+      });
+    }
   }
+
+  const changeWish = async (e) => {
+    e.preventDefault();
+    var request = {
+      ProductId: ProductId,
+    };
+
+    const wishStatus = await addToWish(request);
+    setWish(wishStatus.wish);
+  };
 
   return (
     <>
       {loading ? (
         <Loading />
       ) : (
-        <div className=" container-fluid ">
-          <nav aria-label="breadcrumb" className="mt-3 w3-card">
-            <ol className="breadcrumb py-2 ps-2">
-              <li className="breadcrumb-item">
-                <Link to="/">Product</Link>
-              </li>
-              <li className="breadcrumb-item active" aria-current="page">
-                Details
-              </li>
-            </ol>
-          </nav>
+        response != null && (
+          <div className=" container-fluid ">
+            <nav aria-label="breadcrumb" className="mt-3 w3-card">
+              <ol className="breadcrumb py-2 ps-2">
+                <li className="breadcrumb-item">
+                  <Link to="/">Product</Link>
+                </li>
+                <li className="breadcrumb-item active" aria-current="page">
+                  Details
+                </li>
+              </ol>
+            </nav>
 
-          <div className="row py-4">
-            <div className="col-12 col-md-6">
-              {
-                <div className="w3-content w3-card-4" style={{ width: "100%" }}>
-                  {images.length > 0 &&
-                    images.map((image, indice) =>
-                      indice == 0 ? (
-                        <img
-                          className="mySlides w3-border-bottom editp"
-                          key={indice}
-                          src={`${
-                            import.meta.env.VITE_Back_Domain
-                          }/Product/getImageByName?imageName=${
-                            image.imageName
-                          }`}
-                          style={{
-                            display: "block",
-                          }}
-                        />
-                      ) : (
-                        <img
-                          className="mySlides w3-border-bottom editp"
-                          key={indice}
-                          src={`${
-                            import.meta.env.VITE_Back_Domain
-                          }/Product/getImageByName?imageName=${
-                            image.imageName
-                          }`}
-                          style={{
-                            display: "none",
-                          }}
-                        />
-                      )
-                    )}
-                  <div className="w3-row-padding  py-3 w3-indigo">
-                    {images.length > 0 &&
-                      images.map((image, indice) =>
+            <div className="row py-4">
+              <div className="col-12 col-md-6">
+                {
+                  <div
+                    className="w3-content w3-card-4"
+                    style={{ width: "100%" }}
+                  >
+                    {response.images.length > 0 &&
+                      response.images.map((image, indice) =>
                         indice == 0 ? (
-                          <div key={indice} className="w3-col s3">
-                            <img
-                              className="demo w3-opacity w3-opacity-off w3-hover-opacity-off"
-                              src={`${
-                                import.meta.env.VITE_Back_Domain
-                              }/Product/getImageByName?imageName=${
-                                image.imageName
-                              }`}
-                              style={{ width: "100%", cursor: "pointer" }}
-                              onClick={(e) => currentDiv(indice + 1)}
-                            />
-                          </div>
+                          <img
+                            className="mySlides w3-border-bottom editp"
+                            key={indice}
+                            src={`${
+                              import.meta.env.VITE_Back_Domain
+                            }/Product/getImageByName?imageName=${
+                              image.imageName
+                            }`}
+                            style={{
+                              display: "block",
+                            }}
+                          />
                         ) : (
-                          <div key={indice} className="w3-col s3">
-                            <img
-                              className="demo w3-opacity w3-hover-opacity-off"
-                              src={`${
-                                import.meta.env.VITE_Back_Domain
-                              }/Product/getImageByName?imageName=${
-                                image.imageName
-                              }`}
-                              style={{ width: "100%", cursor: "pointer" }}
-                              onClick={(e) => currentDiv(indice + 1)}
-                            />
-                          </div>
+                          <img
+                            className="mySlides w3-border-bottom editp"
+                            key={indice}
+                            src={`${
+                              import.meta.env.VITE_Back_Domain
+                            }/Product/getImageByName?imageName=${
+                              image.imageName
+                            }`}
+                            style={{
+                              display: "none",
+                            }}
+                          />
                         )
                       )}
+                    <div className="w3-row-padding  py-3 w3-indigo">
+                      {response.images.length > 0 &&
+                        response.images.map((image, indice) =>
+                          indice == 0 ? (
+                            <div key={indice} className="w3-col s3">
+                              <img
+                                className="demo w3-opacity w3-opacity-off w3-hover-opacity-off"
+                                src={`${
+                                  import.meta.env.VITE_Back_Domain
+                                }/Product/getImageByName?imageName=${
+                                  image.imageName
+                                }`}
+                                style={{ width: "100%", cursor: "pointer" }}
+                                onClick={(e) => currentDiv(indice + 1)}
+                              />
+                            </div>
+                          ) : (
+                            <div key={indice} className="w3-col s3">
+                              <img
+                                className="demo w3-opacity w3-hover-opacity-off"
+                                src={`${
+                                  import.meta.env.VITE_Back_Domain
+                                }/Product/getImageByName?imageName=${
+                                  image.imageName
+                                }`}
+                                style={{ width: "100%", cursor: "pointer" }}
+                                onClick={(e) => currentDiv(indice + 1)}
+                              />
+                            </div>
+                          )
+                        )}
+                    </div>
                   </div>
-                </div>
-              }
-            </div>
-            <div className="col-12 col-md-6 mt-4 mt-md-0">
-              <div className="w3-card">
-                <header className="w3-border-bottom">
-                  <h3 className="w3-center  py-3 w3-text-indigo w3-cursive">
-                    Product Details
-                  </h3>
-                </header>
-                <div className="w3-container  py-3">
-                  <p
-                    style={{ fontWeight: "bold" }}
-                    className="h2 w3-cursive text-uppercase text-center"
+                }
+              </div>
+              <div className="col-12 col-md-6 mt-4 mt-md-0">
+                <div className="w3-card">
+                  <header
+                    className={
+                      auth == null
+                        ? "container-fluid w3-border-bottom d-flex justify-content-center align-items-center"
+                        : "container-fluid w3-border-bottom d-flex justify-content-between align-items-center"
+                    }
                   >
-                    {name} {brand}
-                  </p>
-                  <p className="h1 text-center py-3 w3-cursive">
-                    $ {salesPrice}
-                  </p>
-                  <div className="d-flex justify-content-center mb-2">
-                    <button className="w3-btn w3-indigo me-2" onClick={GoDown}>
-                      <i class="fa-solid fa-minus"></i>
-                    </button>
+                    <h3 className="py-3 w3-text-indigo w3-cursive">
+                      Product Details
+                    </h3>
+                    {auth != null &&
+                      (wish ? (
+                        <button
+                          type="button"
+                          style={{
+                            backgroundColor: "#fff",
+                            cursor: "pointer",
+                          }}
+                          className={"m-0 p-0 w3-border-0 w3-text-teal"}
+                          onClick={(e) => changeWish(e)}
+                          id="btnWish"
+                        >
+                          <span className="fa-solid fa-heart fa-3x"></span>
+                        </button>
+                      ) : (
+                        <button
+                          type="button"
+                          style={{
+                            backgroundColor: "#fff",
+                            cursor: "pointer",
+                          }}
+                          className={"m-0 p-0 w3-border-0"}
+                          onClick={(e) => changeWish(e)}
+                          id="btnWish"
+                        >
+                          <span className="fa-solid fa-heart fa-3x"></span>
+                        </button>
+                      ))}
+                  </header>
+                  <div className="w3-container  py-3">
                     <p
-                      style={{
-                        width: "40px",
-                        display: "block",
-                        lineHeight: "35px",
-                        fontWeight: "bold",
-                      }}
-                      className="w3-border w3-center mb-0"
-                      disabled
+                      style={{ fontWeight: "bold" }}
+                      className="h2 w3-cursive text-uppercase text-center"
                     >
-                      {quantity}
+                      {response.name} {response.brand}
                     </p>
-                    <button className="w3-btn w3-indigo ms-2" onClick={GoUp}>
-                      <i class="fa-solid fa-plus"></i>
-                    </button>
-                  </div>
-
-                  <div className="d-flex  flex-column mt-5">
-                    <button className="w3-btn w3-indigo w3-cursive w3-block w3-round-xxlarge mb-3 text-uppercase">
-                      Buy It Now
-                    </button>
-                    <button
-                      onClick={(e) => AddToShopping(e)}
-                      className="w3-btn w3-indigo w3-cursive w3-block w3-round-xxlarge mb-3 text-uppercase"
-                    >
-                      Add to Cart
-                    </button>
-                    <Link
-                      to="/"
-                      className="w3-btn w3-indigo w3-block w3-cursive w3-round-xxlarge text-uppercase mb-3"
-                    >
-                      Keep Shopping
-                    </Link>
-                  </div>
-
-                  <label
-                    style={{ fontWeight: "bold", fontSize: "20px" }}
-                    className="h5 mt-4 w3-cursive"
-                  >
-                    Product Description
-                  </label>
-                  <div class="w3-panel w3-border mt-0 w3-light-grey w3-round-large">
-                    <p
-                      style={{ fontWeight: "bold", fontSize: "18px" }}
-                      className="py-2 w3-cursive"
-                    >
-                      {description}
+                    <p className="h1 text-center py-3 w3-cursive">
+                      $ {response.salesPrice}
                     </p>
+
+                    <div className="d-flex justify-content-center mb-2">
+                      <button
+                        className="w3-btn w3-indigo me-2"
+                        onClick={GoDown}
+                      >
+                        <i className="fa-solid fa-minus"></i>
+                      </button>
+                      <p
+                        style={{
+                          width: "40px",
+                          display: "block",
+                          lineHeight: "35px",
+                          fontWeight: "bold",
+                        }}
+                        className="w3-border w3-center mb-0"
+                        disabled
+                      >
+                        {quantity}
+                      </p>
+                      <button className="w3-btn w3-indigo ms-2" onClick={GoUp}>
+                        <i className="fa-solid fa-plus"></i>
+                      </button>
+                    </div>
+
+                    <div className="d-flex  flex-column mt-5">
+                      <button
+                        onClick={(e) => AddToShopping(e)}
+                        className="w3-btn w3-indigo w3-cursive w3-block w3-round-xxlarge mb-3 text-uppercase"
+                      >
+                        Add to Cart
+                      </button>
+                      <Link
+                        to="/"
+                        className="w3-btn w3-indigo w3-block w3-cursive w3-round-xxlarge text-uppercase mb-3"
+                      >
+                        Keep Shopping
+                      </Link>
+                    </div>
+
+                    <label
+                      style={{ fontWeight: "bold", fontSize: "20px" }}
+                      className="h5 mt-4 w3-cursive"
+                    >
+                      Product Description
+                    </label>
+                    <div className="w3-panel w3-border mt-0 w3-light-grey w3-round-large">
+                      <p
+                        style={{ fontWeight: "bold", fontSize: "18px" }}
+                        className="py-2 w3-cursive"
+                      >
+                        {response.description}
+                      </p>
+                    </div>
                   </div>
                 </div>
               </div>
             </div>
+
+            <ProductCategory ProductId={ProductId} />
+            <ProductReviews reviews={response.reviews} />
           </div>
-
-          <ProductCategory results={results} />
-
-          <ProductReviews reviews={reviews} />
-        </div>
+        )
       )}
     </>
   );

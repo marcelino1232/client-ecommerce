@@ -1,18 +1,120 @@
-import React, { useEffect } from "react";
-import { useSelector, useDispatch } from "react-redux";
-import { Link } from "react-router-dom";
-import { getAll } from "../../redux/actions/shoppingCartAction";
-import { getShoppingCartId } from "../../helpers/GetShoppingCartStore";
+import React, { useContext, useEffect, useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import {
+  getShoppingCartId,
+  removeShoppingCart,
+} from "../../helpers/GetShoppingCartStore";
 import { Loading } from "../../layout/Loading";
+import { PayPalScriptProvider, PayPalButtons } from "@paypal/react-paypal-js";
+import { getToken } from "../../helpers/GetToken";
+import { getDefaultAddress } from "../../services/userAddressService";
+import { shoppingCarts } from "../../services/shoppingCartService";
 
 export const OrderPayment = () => {
-  const { shoppingCart, loading } = useSelector((state) => state.shoppingCart);
+  let token = getToken();
 
-  const dispatch = useDispatch();
+  const initialOptions = {
+    clientId:
+      "AZs6t-7ByRbeLTI4DAukYJVT_VyFPoa_M6GesrJCUR9Q0t8J0boBOcL7j_sVuZ1ea4z3Ik8Ax2B97QEE",
+  };
+
+  const styles = {
+    shape: "pill",
+    color: "blue",
+    borderRadius: 10,
+    label: "pay",
+  };
+
+  const navegate = useNavigate();
+
+  const [loading, setLoading] = useState(false);
+
+  const [address, setAddress] = useState({});
+
+  const [response, setResponse] = useState(null);
+
+  const shoppingCartId = getShoppingCartId();
 
   useEffect(() => {
-    dispatch(getAll(getShoppingCartId()));
+    setLoading(true);
+    onloadingAddress();
+    onloadingDetails();
+    setLoading(false);
   }, []);
+
+  const onloadingAddress = async () => {
+    const request = await getDefaultAddress();
+    setAddress(request.response);
+  };
+
+  const onloadingDetails = async () => {
+    const request = await shoppingCarts();
+    setResponse(request.response);
+  };
+
+  const createOrder = async () => {
+    try {
+      const response = await fetch(
+        `${
+          import.meta.env.VITE_Back_Domain
+        }/Checkout?ShoppingCartId=${shoppingCartId}`,
+        {
+          method: "POST",
+          headers: {
+            Accept: "application/json",
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      const { id } = await response.json();
+
+      if (id == null || id == "") {
+        throw new Error("id is not valid");
+      }
+
+      return id;
+    } catch (error) {
+      console.error(error);
+      throw error;
+    }
+  };
+
+  const onApprove = async (data) => {
+    // Capture the funds from the transaction.
+    const response = await fetch(
+      `${
+        import.meta.env.VITE_Back_Domain
+      }/Checkout/Completed?ShoppingCartId=${shoppingCartId}&OrderId=${
+        data.orderID
+      }`,
+      {
+        method: "POST",
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+
+    const result = await response.json();
+
+    console.log(result);
+
+    if (!result) {
+      throw new Error("something is not right");
+    }
+
+    removeShoppingCart();
+
+    navegate("/orderCompleted");
+  };
+
+  const onError = (err) => {
+    navegate("/500");
+  };
 
   return (
     <>
@@ -45,28 +147,31 @@ export const OrderPayment = () => {
               75%
             </div>
           </div>
+
           <div className="w3-card w3-round ">
-            <header className=" h4 w3-cursive py-3 text-center  container-fluid w3-border-bottom">
+            <header className=" h5 w3-cursive py-2  container-fluid w3-border-bottom d-flex justify-content-between align-items-center">
               <p className="mb-0"> Order Details</p>
+              <Link className="w3-btn w3-indigo w3-round h6 my-1" to="/orderAddress">
+                Back
+              </Link>
             </header>
           </div>
+
           <div className="d-flex flex-column w3-cursive h5 w3-card w3-display-container  w3-container py-2 mt-3">
-            <label className="my-2"> Address : 2425 Nostrand Ave</label>
-            <label className="mb-2"> Aparment : 421</label>
-            <label className="mb-2"> City : Brooklyn</label>
-            <label className="mb-2"> State : New York</label>
-            <label className="mb-2"> Country : United States</label>
+            <label className="my-2"> Address : {address.street}</label>
+            <label className="mb-2"> Aparment : {address.houseNumber}</label>
+            <label className="mb-2"> City : {address.city}</label>
+            <label className="mb-2"> State : {address.region}</label>
+            <label className="mb-2"> Country : {address.country}</label>
           </div>
 
           <div className="mt-3">
-           
-
             <div className="w3-card-4 w3-round ">
-              <header className=" h4 w3-cursive py-3  container-fluid w3-border-bottom">
+              <header className=" h4 w3-cursive py-3  container-fluid w3-border-bottom text-center">
                 Shopping Bag
               </header>
-              {shoppingCart.items.length > 0 ? (
-                shoppingCart.items.map((item) => (
+              {response != null && response.items.length > 0 ? (
+                response.items.map((item) => (
                   <div
                     className=" container-fluid  py-2 w3-border-bottom"
                     key={item.productId}
@@ -107,7 +212,6 @@ export const OrderPayment = () => {
                       <div className="col-12 col-md-2 h4 w3-cursive d-flex align-items-center justify-content-center mb-3 mb-md-0">
                         {item.lineTotal}
                       </div>
-                    
                     </div>
                   </div>
                 ))
@@ -124,38 +228,41 @@ export const OrderPayment = () => {
               )}
             </div>
 
-            <div className="row">
-              <div className="col-12 col-sm-6 col-md-8"></div>
-              <div className="col-12 col-sm-6 col-md-4 mt-3">
-                <div className="w3-card-4 container">
-                  <div className=" w3-cursive h5 d-flex pt-3 justify-content-between">
-                    <label>SubTotal</label>
-                    <label>${shoppingCart.subTotal}</label>
-                  </div>
-                  <div className=" w3-cursive h5 d-flex pt-2 justify-content-between">
-                    <label>Tax(5%)</label>
-                    <label>${shoppingCart.tax}</label>
-                  </div>
-                  <div className=" w3-cursive h5 d-flex py-2 justify-content-between">
-                    <label>Shopping</label>
-                    <label>${shoppingCart.shopping}</label>
-                  </div>
-                  <div className=" w3-cursive h5 pb-3 pt-1 d-flex justify-content-between w3-border-top">
-                    <label>Total</label>
-                    <label>${shoppingCart.total}</label>
+            {response != null && response.items.length > 0 && (
+              <div className="row">
+                <div className="col-12 col-sm-4 col-md-6"></div>
+                <div className="col-12 col-sm-8 col-md-6 mt-3">
+                  <div className="w3-card-4 container">
+                    <div className=" w3-cursive h5 d-flex pt-3 justify-content-between">
+                      <label>SubTotal</label>
+                      <label>${response.subTotal}</label>
+                    </div>
+                    <div className=" w3-cursive h5 d-flex pt-2 justify-content-between">
+                      <label>Tax(5%)</label>
+                      <label>${response.tax}</label>
+                    </div>
+                    <div className=" w3-cursive h5 d-flex py-2 justify-content-between">
+                      <label>Shopping</label>
+                      <label>${response.shopping}</label>
+                    </div>
+                    <div className=" w3-cursive h5 pb-3 pt-1 d-flex justify-content-between w3-border-top">
+                      <label>Total</label>
+                      <label>${response.total}</label>
+                    </div>
+                    <div className=" w3-cursive h5 pb-3 pt-1">
+                      <PayPalScriptProvider options={initialOptions}>
+                        <PayPalButtons
+                          style={styles}
+                          createOrder={createOrder}
+                          onApprove={onApprove}
+                          onError={onError}
+                        />
+                      </PayPalScriptProvider>
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
-          </div>
-
-          <div className=" w3-cursive d-flex justify-content-between my-4">
-            <Link className="w3-btn w3-indigo w3-round" to="/orderAddress">
-              Back
-            </Link>
-            <Link className="w3-btn w3-indigo w3-round" to="/orderPayment">
-              Pay
-            </Link>
+            )}
           </div>
         </div>
       )}

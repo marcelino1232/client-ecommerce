@@ -29,8 +29,8 @@ export const productById = createAsyncThunk(
     await HttpRequest(`/Product/getProductById?ProductId=${ProductId}`)
 );
 
-export const getProductByCategoryId = createAsyncThunk(
-  "ProductByCategoryId",
-  async (CategoryId, ThunkApi) =>
-    await `/Product/getProductByCategoryId?CategoryId=${CategoryId}`
+export const getProductByCategory = createAsyncThunk(
+  "ProductByCategory",
+  async (ProductId, ThunkApi) =>
+    await HttpRequest(`/Product/getProductByCategory?ProductId=${ProductId}`)
 );

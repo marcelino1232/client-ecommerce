@@ -1,17 +1,30 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { convertIntToArray } from "../../helpers/GetArray";
 import { useNavigate } from "react-router-dom";
+import { productOnLoading } from "../../services/productService";
 
 export const ProductList = ({
   pagination,
   setPagination,
-  pageCount,
-  products,
+  setResponse,
+  response,
 }) => {
   let navigate = useNavigate();
 
-  const changePage = function (e) {
+  const { products, pageCount, totalCount } = response;
+
+  useEffect(() => {
+    changeIndex();
+  }, [pagination]);
+
+  const changeIndex = async () => {
+    var request = await productOnLoading(pagination);
+    setResponse(request.response);
+  };
+
+  const changePage = async function (e) {
     e.preventDefault();
+
     const categories = document.querySelectorAll(".pagProduct");
 
     for (let i = 0; i < categories.length; i++) {
@@ -21,17 +34,26 @@ export const ProductList = ({
     e.target.classList.add("w3-indigo");
 
     setPagination({ ...pagination, PageIndex: parseInt(e.target.dataset.id) });
+
+    var request = await productOnLoading(pagination);
+
+    setResponse(request.response);
   };
 
-  const GoUp = () => {
+  const GoUp = async () => {
     if (pagination.PageIndex < pageCount) {
       setPagination({ ...pagination, PageIndex: pagination.PageIndex + 1 });
+      var request = await productOnLoading(pagination);
+      setResponse(request.response);
     }
   };
 
-  const GoDown = () => {
+  const GoDown = async () => {
     if (pagination.PageIndex > 1) {
       setPagination({ ...pagination, PageIndex: pagination.PageIndex - 1 });
+
+      var request = await productOnLoading(pagination);
+      setResponse(request.response);
     }
   };
 
@@ -43,8 +65,8 @@ export const ProductList = ({
 
   return (
     <>
-      <div className="col-12 col-md-8 w3-card">
-        <h2 className="text-uppercase w3-cursive w3-text-indigo py-4 text-center">
+      <div className="col-12 col-md-12 col-lg-12">
+        <h2 className="text-uppercase w3-cursive w3-text-indigo pb-5 text-center">
           List of Product
         </h2>
         <div className="row">
@@ -80,51 +102,53 @@ export const ProductList = ({
             </p>
           )}
         </div>
-        <div className="w3-center py-5">
-          <div className="w3-bar" id="pag">
-            <li
-              onClick={GoDown}
-              className={
-                pagination.PageIndex > 1
-                  ? "w3-button "
-                  : "w3-button w3-disabled"
-              }
-            >
-              &laquo;
-            </li>
-            {pages.map((page) =>
-              page == pagination.PageIndex ? (
-                <li
-                  key={page}
-                  data-id={page}
-                  onClick={(e) => changePage(e)}
-                  className="w3-button w3-indigo pagProduct"
-                >
-                  {page}
-                </li>
-              ) : (
-                <li
-                  key={page}
-                  data-id={page}
-                  onClick={(e) => changePage(e)}
-                  className="w3-button pagProduct"
-                >
-                  {page}
-                </li>
-              )
-            )}
-            <li
-              onClick={GoUp}
-              className={
-                pagination.PageIndex < pageCount
-                  ? "w3-button "
-                  : "w3-button w3-disabled"
-              }
-            >
-              &raquo;
-            </li>
+        {totalCount > pagination.PageSize && (
+          <div className="w3-center py-5">
+            <div className="w3-bar" id="pag">
+              <li
+                onClick={GoDown}
+                className={
+                  pagination.PageIndex > 1
+                    ? "w3-button "
+                    : "w3-button w3-disabled"
+                }
+              >
+                &laquo;
+              </li>
+              {pages.map((page) =>
+                page == pagination.PageIndex ? (
+                  <li
+                    key={page}
+                    data-id={page}
+                    onClick={(e) => changePage(e)}
+                    className="w3-button w3-indigo pagProduct"
+                  >
+                    {page}
+                  </li>
+                ) : (
+                  <li
+                    key={page}
+                    data-id={page}
+                    onClick={(e) => changePage(e)}
+                    className="w3-button pagProduct"
+                  >
+                    {page}
+                  </li>
+                )
+              )}
+              <li
+                onClick={GoUp}
+                className={
+                  pagination.PageIndex < pageCount
+                    ? "w3-button "
+                    : "w3-button w3-disabled"
+                }
+              >
+                &raquo;
+              </li>
+            </div>
           </div>
-        </div>
+        )}
       </div>
     </>
   );

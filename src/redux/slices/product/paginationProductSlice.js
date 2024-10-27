@@ -2,13 +2,9 @@ import { createSlice } from "@reduxjs/toolkit";
 import { paginationProduct } from "../../actions/productAction";
 
 const initialState = {
-  pageIndex: 0,
-  pageSize: 2,
-  pageCount: 0,
-  totalCount: 0,
   loading: false,
-  products: [],
-  error: null,
+  statusCode: 0,
+  response:null
 };
 
 const paginationProductSlice = createSlice({
@@ -21,17 +17,14 @@ const paginationProductSlice = createSlice({
 
     builder.addCase(paginationProduct.fulfilled, (state, { payload }) => {
       state.loading = false;
-      state.pageIndex = payload.pageIndex;
-      state.pageSize = payload.pageSize;
-      state.pageCount = payload.pageCount;
-      state.products = payload.products;
-      state.totalCount = payload.totalCount;
+      state.statusCode = payload.statusCode;
+      state.response = payload.response;
     });
 
     builder.addCase(paginationProduct.rejected, (state, { payload }) => {
       state.loading = false;
-      state.products = [];
-      state.error = payload;
+      state.statusCode = payload.statusCode;
+      state.response = payload.response;
     });
   },
 });

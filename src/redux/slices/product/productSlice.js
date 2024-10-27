@@ -1,26 +1,28 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { getProductByCategoryId, products } from "../../actions/productAction";
+import { getProductByCategory } from "../../actions/productAction";
 
 export const inicialState = {
-  loadingCat: false,
-  results: null,
+  loading: false,
+  statusCode:0,
+  data: null,
 };
 
 const productSlice = createSlice({
   name: "products",
   initialState: inicialState,
   extraReducers: (builder) => {
-    builder.addCase(products.pending, (state) => {
-      state.loadingCat = true;
+    builder.addCase(getProductByCategory.pending, (state) => {
+      state.loading = true;
     });
 
-    builder.addCase(products.fulfilled, (state, actions) => {
-      state.loadingCat = false;
-      state.results = actions.payload;
+    builder.addCase(getProductByCategory.fulfilled, (state, {payload}) => {
+      state.loading = false;
+      state.statusCode = payload.statusCode;
+      state.data = payload.data;
     });
-    builder.addCase(products.rejected, (state, { payload }) => {
-      state.loadingCat = false;
-      state.error = payload;
+    builder.addCase(getProductByCategory.rejected, (state, { payload }) => {
+      state.loading = false;
+      state.statusCode = payload.statusCode;
     });
   },
 });

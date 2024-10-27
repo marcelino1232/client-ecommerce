@@ -25,8 +25,8 @@ export const Footer = () => {
                 {/* Grid column */}
                 <div className="col-md-2">
                   <h6 className="text-uppercase font-weight-bold">
-                    <Link className="text-white" to="/products">
-                      Products
+                    <Link className="text-white" to="/about">
+                      About
                     </Link>
                   </h6>
                 </div>
@@ -58,33 +58,27 @@ export const Footer = () => {
 
             <hr className="my-5" />
 
-            {/* Section: Text */}
-            <section className="mb-5">
-              <div className="row d-flex justify-content-center">
-                <div className="col-lg-8">
-                  <p>
-                    Lorem ipsum dolor sit amet consectetur adipisicing elit.
-                    Sunt distinctio earum repellat quaerat voluptatibus placeat
-                    nam, commodi optio pariatur est quia magnam eum harum
-                    corrupti dicta, aliquam sequi voluptate quas.
-                  </p>
-                </div>
-              </div>
-            </section>
-            {/* Section: Text */}
-
             {/* Section: Social */}
             <section className="text-center mb-5">
-              <a href="https://www.facebook.com/marcelino.herediafernandez/" className="text-white me-4">
+              <a
+                href="https://www.facebook.com/marcelino.herediafernandez/"
+                className="text-white me-4"
+              >
                 <i className="fab fa-facebook-f"></i>
               </a>
-              <a href="https://x.com/MarcelinoHered8" className="text-white me-4">
+              <a
+                href="https://x.com/MarcelinoHered8"
+                className="text-white me-4"
+              >
                 <i className="fab fa-twitter"></i>
               </a>
               <a href="" className="text-white me-4">
                 <i className="fab fa-google"></i>
               </a>
-              <a href="https://www.instagram.com/marcelinoherediafernandez/" className="text-white me-4">
+              <a
+                href="https://www.instagram.com/marcelinoherediafernandez/"
+                className="text-white me-4"
+              >
                 <i className="fab fa-instagram"></i>
               </a>
             </section>

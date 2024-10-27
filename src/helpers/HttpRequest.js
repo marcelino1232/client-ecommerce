@@ -1,16 +1,25 @@
+import { getToken } from "./GetToken";
 import { Http } from "./Http";
 
-export const getToken = () => {
-  if (localStorage.getItem("token") == null) {
-    return null;
-  } else {
-    return JSON.parse(localStorage.getItem("token"));
+export const HttpRequestFile = async (url, type, body) => {
+  
+  let token = getToken();
+
+  try {
+    const request = await fetch(`${import.meta.env.VITE_Back_Domain}${url}`, {
+      method: type,
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+      body: body,
+    });
+    const response = await request.json();
+    return response;
+  } catch (error) {
+    return error;
   }
 };
 
-export const setToken = (token) => {
-  localStorage.setItem("token", JSON.stringify(token));
-};
 
 export const HttpRequest = async (
   url,
@@ -18,20 +27,24 @@ export const HttpRequest = async (
   body = null,
   contentType = null
 ) => {
-  const token = getToken();
+  let token = getToken();
 
   let option = {
     method: type,
     headers: {
       Accept: contentType == null ? "application/json" : contentType,
       "Content-Type": contentType == null ? "application/json" : contentType,
-      Authorization: token == null ? "" : `${token}`,
+      Authorization: token == null ? "" : `Bearer ${token}`,
     },
   };
 
   if (body != null) {
-    option = { ...option, ["body"]: JSON.stringify(body) };
+    option = {
+      ...option,
+      ["body"]: JSON.stringify(body),
+    };
   }
+
   try {
     const request = await fetch(
       `${import.meta.env.VITE_Back_Domain}${url}`,
@@ -40,6 +53,6 @@ export const HttpRequest = async (
     const response = await request.json();
     return response;
   } catch (error) {
-    console.log(error);
+    return error;
   }
 };

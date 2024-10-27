@@ -3,8 +3,8 @@ import { categories } from "../actions/categoryAction";
 
 export const initialState = {
   loadingCategory: false,
-  results: [],
-  error: null,
+  statusCode:0,
+  data: []
 };
 
 const categorySlice = createSlice({
@@ -17,13 +17,14 @@ const categorySlice = createSlice({
 
     builder.addCase(categories.fulfilled, (state, { payload }) => {
       state.loadingCategory = false;
-      state.results = payload;
+      state.statusCode = payload.statusCode;
+      state.data = payload.data;
     });
 
     builder.addCase(categories.rejected, (state, { payload }) => {
       state.loadingCategory = false;
-      state.results = [];
-      state.error = payload;
+      state.statusCode = payload.statusCode;
+      state.errors = payload.errors;
     });
   },
 });

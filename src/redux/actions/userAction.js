@@ -14,6 +14,12 @@ export const login = createAsyncThunk(
     await HttpRequest("/Auth/Login", Http.POST, params)
 );
 
+export const signOut = createAsyncThunk(
+  "signOut",
+  async (ThunkApi) =>
+    await HttpRequest("/Auth/SignOut", Http.GET)
+);
+
 export const forgotPassword = createAsyncThunk(
   "forgotPassword",
   async (params, ThunkApi) =>

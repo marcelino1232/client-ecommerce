@@ -5,19 +5,14 @@ import {
   getAll,
   updateItem,
 } from "../actions/shoppingCartAction";
+import { addItemByWish } from "../actions/WishAction";
+
 
 const initialState = {
   loading: false,
-  error: null,
-  shoppingCart: {
-    shoppingCartId: "",
-    items: [],
-    count: 0,
-    subTotal: 0,
-    tax: 0,
-    shopping: 0,
-    total: 0,
-  },
+  statusCode: 0,
+  response: null,
+  errors: null,
 };
 
 const shoppingCartSlice = createSlice({
@@ -31,12 +26,13 @@ const shoppingCartSlice = createSlice({
     });
     builder.addCase(getAll.fulfilled, (state, { payload }) => {
       state.loading = false;
-      state.shoppingCart = payload;
+      state.statusCode = payload.statusCode;
+      state.response = payload.response;
     });
     builder.addCase(getAll.rejected, (state, { payload }) => {
       state.loading = false;
-      state.shoppingCart = null;
-      state.error = payload;
+      state.statusCode = payload.statusCode;
+      state.errors = payload.errors;
     });
 
     // End Get ShoppingCart //
@@ -46,15 +42,17 @@ const shoppingCartSlice = createSlice({
     builder.addCase(addItem.pending, (state) => {
       state.loading = true;
     });
-    
+
     builder.addCase(addItem.fulfilled, (state, { payload }) => {
       state.loading = false;
-      state.shoppingCart = payload;
+      state.statusCode = payload.statusCode;
+      state.response = payload.response;
+
     });
     builder.addCase(addItem.rejected, (state, { payload }) => {
       state.loading = false;
-      state.shoppingCart = null;
-      state.error = payload;
+      state.statusCode = payload.statusCode;
+      state.errors = payload.errors;
     });
 
     // End AddItem to ShoppingCart //
@@ -66,12 +64,13 @@ const shoppingCartSlice = createSlice({
     });
     builder.addCase(updateItem.fulfilled, (state, { payload }) => {
       state.loading = false;
-      state.shoppingCart = payload;
+      state.statusCode = payload.statusCode;
+      state.response = payload.response;
     });
     builder.addCase(updateItem.rejected, (state, { payload }) => {
       state.loading = false;
-      state.shoppingCart = null;
-      state.error = payload;
+      state.statusCode = payload.statusCode;
+      state.errors = payload.errors;
     });
 
     // End updateItem to ShoppingCart //
@@ -83,15 +82,39 @@ const shoppingCartSlice = createSlice({
     });
     builder.addCase(deleteItem.fulfilled, (state, { payload }) => {
       state.loading = false;
-      state.shoppingCart = payload;
+      state.statusCode = payload.statusCode;
+      state.response = payload.response;
     });
     builder.addCase(deleteItem.rejected, (state, { payload }) => {
       state.loading = false;
-      state.shoppingCart = null;
-      state.error = payload;
+      state.statusCode = payload.statusCode;
+      state.errors = payload.errors;
     });
 
     // End deleteItem ShoppingCart //
+
+
+     // AddItem By Wish to ShoppingCart //
+
+     builder.addCase(addItemByWish.pending, (state) => {
+      state.loading = true;
+    });
+
+    builder.addCase(addItemByWish.fulfilled, (state, { payload }) => {
+      state.loading = false;
+      state.statusCode = payload.statusCode;
+      state.response = payload.response;
+
+    });
+
+    builder.addCase(addItemByWish.rejected, (state, { payload }) => {
+      state.loading = false;
+      state.statusCode = payload.statusCode;
+      state.errors = payload.errors;
+    });
+
+    // End AddItem By Wish to ShoppingCart //
+
   },
 });
 
